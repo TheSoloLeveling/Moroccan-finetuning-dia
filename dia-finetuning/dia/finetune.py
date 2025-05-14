@@ -427,7 +427,11 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
             steps_per_epoch = None
 
     for epoch in range(train_cfg.epochs):
-        # iterate with progress bar, using total if known
+        print()
+        print(f"Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
+        print(f"Reserved memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
+        print()
+       
         loader_iter = tqdm(
             train_loader,
             desc=f"E{epoch+1}",
@@ -437,11 +441,6 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
             global_step = epoch * (steps_per_epoch or 0) + step
             # training step
             loss=train_step(model, batch, dia_cfg, train_cfg, opt, sched, writer,step, global_step)
-            del batch
-            print(f"Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
-
-            # Prints memory cached by the allocator
-            print(f"Reserved memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
             
             cur_alloc = torch.cuda.memory_allocated()   # bytes currently allocated by tensors
             peak_alloc = torch.cuda.max_memory_allocated()  # bytes peak during program
@@ -458,6 +457,9 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
 
             # remember to zero the peak if you want rolling peaks per step
             torch.cuda.reset_peak_memory_stats()
+            del batch
+            loss = loss.detach().cpu()
+            torch.cuda.empty_cache()
             
 
             # evaluation
