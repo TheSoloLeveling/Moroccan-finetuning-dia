@@ -432,17 +432,12 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
             train_loader,
             desc=f"E{epoch+1}",
             total=steps_per_epoch
-        )
-        print(f"BEFORE Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
-
-            # Prints memory cached by the allocator
-        print(f"BEFORE Reserved memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
-        
+        )    
         for step, batch in enumerate(loader_iter):
             global_step = epoch * (steps_per_epoch or 0) + step
             # training step
             loss=train_step(model, batch, dia_cfg, train_cfg, opt, sched, writer,step, global_step)
-            print("batch in memory")
+            del batch
             print(f"Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
 
             # Prints memory cached by the allocator
