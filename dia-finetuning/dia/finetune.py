@@ -458,10 +458,8 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
             # remember to zero the peak if you want rolling peaks per step
             torch.cuda.reset_peak_memory_stats()
             del batch
-            loss = loss.detach().cpu()
             torch.cuda.empty_cache()
             
-
             # evaluation
             if step % train_cfg.eval_step == 0:
                 model.eval()
@@ -479,13 +477,6 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
         ckpt_e = train_cfg.output_dir / f"ckpt_epoch{epoch+1}.pth"
         torch.save(model.state_dict(), ckpt_e)
         logger.info(f"Saved end-of-epoch checkpoint: {ckpt_e}")
-
-
-
-
-
-
-
 
 
 def main():
