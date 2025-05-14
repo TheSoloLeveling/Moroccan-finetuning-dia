@@ -437,7 +437,12 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
             global_step = epoch * (steps_per_epoch or 0) + step
             # training step
             loss=train_step(model, batch, dia_cfg, train_cfg, opt, sched, writer,step, global_step)
+            print("batch in memory")
+            print(f"Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
 
+            # Prints memory cached by the allocator
+            print(f"Reserved memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
+            
             cur_alloc = torch.cuda.memory_allocated()   # bytes currently allocated by tensors
             peak_alloc = torch.cuda.max_memory_allocated()  # bytes peak during program
             # optionally convert to GB
