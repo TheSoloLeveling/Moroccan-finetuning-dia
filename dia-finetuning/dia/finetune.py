@@ -72,7 +72,7 @@ test_sentences = {
 @dataclass
 class TrainConfig:
     epochs: int = 1
-    batch_size: int = 2
+    batch_size: int = 1
     grad_accum_steps: int = 4
     learning_rate: float = 1e-5
     warmup_steps: int = 500
@@ -427,10 +427,7 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
             steps_per_epoch = None
 
     for epoch in range(train_cfg.epochs):
-        print()
-        print(f"Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
-        print(f"Reserved memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
-        print()
+       
        
         loader_iter = tqdm(
             train_loader,
@@ -438,6 +435,10 @@ def train(model, dia_cfg: DiaConfig, dac_model: dac.DAC, dataset, train_cfg: Tra
             total=steps_per_epoch
         )    
         for step, batch in enumerate(loader_iter):
+             print()
+            print(f"Allocated memory: {torch.cuda.memory_allocated() / 1024**2:.2f} MB")
+            print(f"Reserved memory: {torch.cuda.memory_reserved() / 1024**2:.2f} MB")
+            print()
             global_step = epoch * (steps_per_epoch or 0) + step
             # training step
             loss=train_step(model, batch, dia_cfg, train_cfg, opt, sched, writer,step, global_step)
